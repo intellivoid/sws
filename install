@@ -1,0 +1,429 @@
+<?php
+
+(PHP_SAPI !== 'cli' || isset($_SERVER['HTTP_USER_AGENT'])) && die('Installation Failed: Run this through the command line interface as root!' . PHP_EOL);
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') { define('INST_OS', 'WIN', False); } else {define('INST_OS', 'UNIX', False);}
+define('SPEC_NONE', '', False);
+print(PHP_EOL);
+
+class Color
+{
+    protected static $ANSI_CODES = array(
+        "off"        => 0,
+        "bold"       => 1,
+        "italic"     => 3,
+        "underline"  => 4,
+        "blink"      => 5,
+        "inverse"    => 7,
+        "hidden"     => 8,
+        "black"      => 30,
+        "red"        => 31,
+        "green"      => 32,
+        "yellow"     => 33,
+        "blue"       => 34,
+        "magenta"    => 35,
+        "cyan"       => 36,
+        "white"      => 37,
+        "black_bg"   => 40,
+        "red_bg"     => 41,
+        "green_bg"   => 42,
+        "yellow_bg"  => 43,
+        "blue_bg"    => 44,
+        "magenta_bg" => 45,
+        "cyan_bg"    => 46,
+        "white_bg"   => 47
+    );
+    public static function set($str, $color)
+    {
+        if(INST_OS == 'UNIX')
+        {
+            $color_attrs = explode("+", $color);
+            $ansi_str = "";
+            foreach ($color_attrs as $attr) {
+                $ansi_str .= "\033[" . self::$ANSI_CODES[$attr] . "m";
+            }
+            $ansi_str .= $str . "\033[" . self::$ANSI_CODES["off"] . "m";
+            return $ansi_str;
+        }
+        else
+        {
+            return $str;
+        }
+    }
+    public static function log($message, $color)
+    {
+        error_log(self::set($message, $color));
+    }
+    public static function replace($full_text, $search_regexp, $color)
+    {
+        $new_text = preg_replace_callback(
+            "/($search_regexp)/",
+            function ($matches) use ($color) {
+                return Color::set($matches[1], $color);
+            },
+            $full_text
+        );
+        return is_null($new_text) ? $full_text : $new_text;
+    }
+}
+
+function getInput($Message = '> ')
+{
+    print($Message);
+    return(preg_replace( "/\r|\n/", "", fgets(STDIN)));
+}
+
+function printx(string $Message, bool $lineBreak = True)
+{
+    if($lineBreak == True)
+    {
+        print($Message . PHP_EOL);
+    }
+    else
+    {
+        print($Message);
+    }
+}
+
+function terminateInstaller(bool $Failed = False)
+{
+    printx('Installer Terminated');
+    if($Failed == True)
+    {
+        exit(0);
+    }
+    else
+    {
+        exit(1);
+    }
+}
+
+function delete_dir($dir)
+{
+    if (is_dir($dir))
+    {
+        $objects = scandir($dir);
+        foreach ($objects as $object)
+        {
+            if ($object != "." && $object != "..")
+            {
+                if (is_dir($dir. DIRECTORY_SEPARATOR .$object))
+                {
+                    delete_dir($dir. DIRECTORY_SEPARATOR .$object);
+                }
+                else
+                {
+                    printx(Color::set(' > ', 'bold') . 'Deleting File: ' . $dir . DIRECTORY_SEPARATOR . $object);
+                    unlink($dir. DIRECTORY_SEPARATOR .$object);
+                }
+            }
+        }
+        printx(Color::set(' > ', 'bold') . 'Deleting Directory: ' . $dir);
+        rmdir($dir);
+    }
+}
+
+function safeCheckValue(string $Name, string $Value, array $Data)
+{
+    if(isset($Data[$Value]))
+    {
+        return($Data[$Value]);
+    }
+    else
+    {
+        printx(Color::set('Fatal Error: ', 'red+bold') . "Missing \'$Value\' from $Name");
+        terminateInstaller(True);
+        return(null);
+    }
+}
+
+function getResourcesDir()
+{
+    return(__DIR__ . DIRECTORY_SEPARATOR . 'resources');
+}
+
+function loadPackageMeta(string $Directory)
+{
+    if(!file_exists($Directory))
+    {
+        printx(Color::set('Fatal Error: ', 'red+bold') . 'The resources directory (' . $Directory .') does not exist.');
+        terminateInstaller(True);
+    }
+
+    if(!file_exists($Directory . DIRECTORY_SEPARATOR . 'package.json'))
+    {
+        printx(Color::set('Fatal Error: ', 'red+bold') . 'The file \'package.json\' was not found, unable to understand the package');
+        terminateInstaller(True);
+    }
+
+    $PackageInformation = file_get_contents($Directory . DIRECTORY_SEPARATOR . 'package.json');
+    $PackageInformation = json_decode($PackageInformation, True);
+    return($PackageInformation);
+}
+
+function loadResources(string $Directory)
+{
+    if(!file_exists($Directory))
+    {
+        printx(Color::set('Fatal Error: ', 'red+bold') . 'The resources directory (' . $Directory .') does not exist.');
+        terminateInstaller(True);
+    }
+
+    if(!file_exists($Directory . DIRECTORY_SEPARATOR . 'package.json'))
+    {
+        printx(Color::set('Fatal Error: ', 'red+bold') . 'The file \'package.json\' was not found, unable to understand the package');
+        terminateInstaller(True);
+    }
+
+    $PackageInformation = file_get_contents($Directory . DIRECTORY_SEPARATOR . 'package.json');
+    $PackageInformation = json_decode($PackageInformation, True);
+
+    $PackageConfig = safeCheckValue('package.json', 'package', $PackageInformation);
+    define('INST_PACKAGE_FULL_NAME', $PackageConfig['title'], False);
+    define('INST_PACKAGE_NAME', $PackageConfig['name'], False);
+    define('INST_PACKAGE_DEVELOPER', $PackageConfig['developer'], False);
+    define('INST_PACKAGE_VERSION', $PackageConfig['version'], False);
+
+    $BuildConfig = safeCheckValue('package.json', 'build', $PackageInformation);
+    define('INST_BUILD_TYPE', $BuildConfig['type'], False);
+    define('INST_BUILD_FLAG', $BuildConfig['flag'], False);
+
+    $InstallationConfig = safeCheckValue('package.json', 'installation', $PackageInformation);
+    define('INST_UPGRADEABLE', $InstallationConfig['upgradeable'], False);
+    define('INST_DEFAULT_PATH_UNIX', $InstallationConfig['default_path_unix'], False);
+    define('INST_DEFAULT_PATH_WIN', $InstallationConfig['default_path_win'], False);
+}
+
+loadResources(getResourcesDir());
+
+if(!file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . INST_PACKAGE_NAME))
+{
+    printx(Color::set('Fatal Error: ', 'red+bold') . 'Could not locate the package source code');
+    terminateInstaller(True);
+}
+
+$PackageStructure = loadPackageMeta(getResourcesDir());
+if(!empty($PackageStructure['installation']['function_scripts']))
+{
+    foreach ($PackageStructure['installation']['function_scripts'] as $Script)
+    {
+        if(file_exists(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script))
+        {
+            include_once(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script);
+        }
+        else
+        {
+            printx(Color::set('Fatal Error: ', 'red+bold') . 'Could not locate the file "' . $Script . '"');
+            terminateInstaller(True);
+        }
+    }
+}
+
+printx('Installation for ' . INST_PACKAGE_FULL_NAME);
+printx(Color::set('    Version: ', 'bold') . INST_PACKAGE_VERSION . ' (' . INST_BUILD_TYPE . ')');
+printx(Color::set('    Developer: ', 'bold') . INST_PACKAGE_DEVELOPER);
+printx(SPEC_NONE);
+
+if(INST_BUILD_TYPE == 'alpha')
+{
+    printx(Color::set('Warning: ', 'yellow+bold') . 'This package is in it\'s alpha build, and some features may not work or may even break!');
+}
+elseif(INST_BUILD_TYPE == 'build')
+{
+    printx(Color::set('Warning: ', 'yellow+bold') . 'This package is in it\'s beta build, features may differ in later builds');
+}
+
+if(INST_BUILD_FLAG == 1)
+{
+    printx(Color::set('Warning: ', 'yellow+bold') . 'This package is flagged as unstable! Features are not guaranteed to work');
+}
+
+if(!empty($PackageStructure['installation']['verification_scripts']))
+{
+    foreach ($PackageStructure['installation']['verification_scripts'] as $Script)
+    {
+        if(file_exists(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script))
+        {
+            include_once(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script);
+        }
+        else
+        {
+            printx(Color::set('Fatal Error: ', 'red+bold') . 'Could not locate the file "' . $Script . '"');
+            terminateInstaller(True);
+        }
+    }
+}
+
+
+$InstallationPath = DIRECTORY_SEPARATOR;
+if(INST_OS == 'UNIX')
+{
+    $InstallationPath = INST_DEFAULT_PATH_UNIX;
+}
+else
+{
+    $InstallationPath = INST_DEFAULT_PATH_WIN;
+}
+
+if(file_exists($InstallationPath))
+{
+    while(True)
+    {
+        $Input = strtolower(getInput('The default installation path is ' . Color::set("\"$InstallationPath\"", 'bold') . ', Would you like to change it?' . Color::set(' [Y/n] ', 'bold')));
+        if($Input == 'y')
+        {
+            printx('Specify the directory to install ' . INST_PACKAGE_FULL_NAME . ' to');
+            while(True)
+            {
+                $Input = getInput('Installation Path: ');
+                if(file_exists($Input))
+                {
+                    $InstallationPath = $Input;
+                    break;
+                }
+                else
+                {
+                    printx(Color::set('Warning: ', 'yellow+bold'). 'The path ' . Color::set("\"$Input\"", 'bold') . ' does not exist');
+                }
+            }
+            break;
+        }
+        elseif($Input == 'n')
+        {
+            break;
+        }
+        else
+        {
+            printx(Color::set('Warning: ', 'yellow+bold'). 'Unknown choice.');
+        }
+    }
+}
+else
+{
+    printx(Color::set('Warning: ', 'yellow+bold') . 'The default installation path is ' . Color::set("\"$InstallationPath\"", 'bold') . ', but it was not found.');
+    printx('Specify the directory to install ' . INST_PACKAGE_FULL_NAME . ' to');
+    while(True)
+    {
+        $Input = getInput('Installation Path: ');
+        if(file_exists($Input))
+        {
+            $InstallationPath = $Input;
+            break;
+        }
+        else
+        {
+            printx(Color::set('Warning: ', 'yellow+bold'). 'The path ' . Color::set("\"$Input\"", 'bold') . ' does not exist');
+        }
+    }
+}
+
+$InstallationPath = $InstallationPath . DIRECTORY_SEPARATOR . INST_PACKAGE_NAME;
+define('INST_INSTALLATION_PATH', $InstallationPath, False);
+printx(SPEC_NONE);
+printx(' ======== INSTALLATION STARTED ======== ');
+
+if(file_exists($InstallationPath))
+{
+    while(True)
+    {
+        $Input = strtolower(getInput('A pre-existing installation of ' .INST_PACKAGE_FULL_NAME . ' was found, do you want to upgrade?' . Color::set(' [Y/n] ', 'bold')));
+        if($Input == 'y')
+        {
+            printx('Preparing for upgrade ...');
+            define('INST_INSTALL_METHOD', 'upgrade', False);
+            if(!empty($PackageStructure['installation']['post_scripts']))
+            {
+                foreach ($PackageStructure['installation']['post_scripts'] as $Script)
+                {
+                    if(file_exists(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script))
+                    {
+                        include_once(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script);
+                    }
+                    else
+                    {
+                        printx(Color::set('Fatal Error: ', 'red+bold') . 'Could not locate the file "' . $Script . '"');
+                        terminateInstaller(True);
+                    }
+                }
+            }
+            delete_dir($InstallationPath);
+            break;
+        }
+        elseif($Input == 'n')
+        {
+            printx(Color::set('Fatal Error: ', 'red+bold') . 'The installation cannot be completed because the package is already installed');
+            terminateInstaller(True);
+            break;
+        }
+        else
+        {
+            printx(Color::set('Warning: ', 'yellow+bold'). 'Unknown choice.');
+        }
+    }
+}
+else
+{
+    define('INST_INSTALL_METHOD', 'clean', False);
+    if(!empty($PackageStructure['installation']['post_scripts']))
+    {
+        foreach ($PackageStructure['installation']['post_scripts'] as $Script)
+        {
+            if(file_exists(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script))
+            {
+                include_once(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script);
+            }
+            else
+            {
+                printx(Color::set('Fatal Error: ', 'red+bold') . 'Could not locate the file "' . $Script . '"');
+                terminateInstaller(True);
+            }
+        }
+    }
+}
+
+printx("Creating $InstallationPath");
+mkdir($InstallationPath);
+printx("Copying files ...");
+
+foreach ($iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(__DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . INST_PACKAGE_NAME, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $item)
+{
+    if ($item->isDir())
+    {
+
+        $Directory = $InstallationPath . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
+        if(file_exists($Directory))
+        {
+            print(Color::set(' > ', 'bold') . "Skipping $Directory" . PHP_EOL);
+        }
+        else
+        {
+            print(Color::set(' > ', 'bold') . "Creating Directory $Directory" . PHP_EOL);
+            mkdir($Directory);
+        }
+    }
+    else
+    {
+        print(Color::set(' > ', 'bold') . "Copying $item" . PHP_EOL);
+        print(Color::set(' > ', 'bold') . "Copying " . $InstallationPath . DIRECTORY_SEPARATOR . $iterator->getSubPathName() . PHP_EOL);
+        copy($item, $InstallationPath . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
+    }
+}
+
+if(!empty($PackageStructure['installation']['final_scripts']))
+{
+    foreach ($PackageStructure['installation']['final_scripts'] as $Script)
+    {
+        if(file_exists(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script))
+        {
+            include_once(getResourcesDir() . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . $Script);
+        }
+        else
+        {
+            printx(Color::set('Fatal Error: ', 'red+bold') . 'Could not locate the file "' . $Script . '"');
+            terminateInstaller(True);
+        }
+    }
+}
+
+printx(SPEC_NONE);
+printx(Color::set('Success: ', 'green+bold') . 'Installation Completed');
+terminateInstaller(False);

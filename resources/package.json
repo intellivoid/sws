@@ -1,0 +1,30 @@
+{
+  "package": {
+    "title": "Secured Web Sessions",
+    "name": "sws",
+    "developer": "Intellivoid",
+    "version": "1.0.0.0"
+  },
+  "build": {
+    "type": "alpha",
+    "flag": 1
+  },
+  "installation": {
+    "upgradeable": true,
+    "default_path_unix": "/usr/local/bin",
+    "default_path_win": "C:\\Programs Files",
+    "function_scripts": [
+      "config_validator.php"
+    ],
+    "verification_scripts": [
+      "validate_configuration.php",
+      "validate_database.php"
+    ],
+    "post_scripts": [
+      "prepare_configuration.php"
+    ],
+    "final_scripts": [
+      "install_configuration.php"
+    ]
+  }
+}
