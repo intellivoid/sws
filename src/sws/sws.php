@@ -55,7 +55,13 @@
 
             include_once(__DIR__ . DIRECTORY_SEPARATOR . 'Objects' . DIRECTORY_SEPARATOR . 'Cookie.php');
 
-            $this->Database = new \mysqli($this->Configuration['Host'], $this->Configuration['Username'], $this->Configuration['Password'], $this->Configuration['Database']);
+            $this->Database = new \mysqli(
+                $this->Configuration['Host'],
+                $this->Configuration['Username'],
+                $this->Configuration['Password'],
+                $this->Configuration['Database'],
+                $this->Configuration['Port']
+            );
 
             if($this->Database->connect_error)
             {
