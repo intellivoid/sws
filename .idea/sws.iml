@@ -10,6 +10,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/sws/Exceptions" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/sws/Objects" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sws/ZiProto" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sws/ZiProto/Abstracts" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sws/ZiProto/Exception" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sws/ZiProto/Type" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/sws/ZiProto/TypeTransformer" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
