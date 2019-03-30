@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="eebff7ba-6bc7-445a-b681-5d10811ed6a5" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/sws.iml" afterPath="$PROJECT_DIR$/.idea/sws.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sws/sws.php" afterPath="$PROJECT_DIR$/src/sws/sws.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/sws/sws.json" afterPath="$PROJECT_DIR$/src/sws/sws.json" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -23,7 +21,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sws.json" pinned="false" current-in-tab="false">
+      <file leaf-file-name="sws.json" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/sws/sws.json">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
@@ -33,7 +31,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sws.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="sws.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/sws/sws.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="119">
@@ -71,9 +69,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/sws/sws.json" />
         <option value="$PROJECT_DIR$/src/sws/configuration.ini" />
         <option value="$PROJECT_DIR$/src/sws/sws.php" />
+        <option value="$PROJECT_DIR$/src/sws/sws.json" />
       </list>
     </option>
   </component>
@@ -271,12 +269,12 @@
       <option name="presentableId" value="Default" />
       <updated>1553967441579</updated>
       <workItem from="1553967443174" duration="238000" />
-      <workItem from="1553971470636" duration="303000" />
+      <workItem from="1553971470636" duration="340000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="541000" />
+    <option name="totallyTimeSpent" value="578000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
@@ -357,18 +355,18 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/index.json" />
-    <entry file="file://$PROJECT_DIR$/src/sws/sws.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="23" lean-forward="false" selection-start-line="1" selection-start-column="23" selection-end-line="1" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/resources/configuration.ini">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/sws/sws.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="36" column="37" lean-forward="true" selection-start-line="36" selection-start-column="37" selection-end-line="36" selection-end-column="37" />
           <folding />
         </state>
       </provider>
@@ -381,10 +379,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/sws/sws.php">
+    <entry file="file://$PROJECT_DIR$/src/sws/sws.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="36" column="37" lean-forward="true" selection-start-line="36" selection-start-column="37" selection-end-line="36" selection-end-column="37" />
+        <state relative-caret-position="17">
+          <caret line="1" column="23" lean-forward="false" selection-start-line="1" selection-start-column="23" selection-end-line="1" selection-end-column="23" />
           <folding />
         </state>
       </provider>
