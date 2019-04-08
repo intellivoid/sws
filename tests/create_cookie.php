@@ -1,5 +1,5 @@
 <?php
-    include('/usr/local/bin/sws/sws.php');
+    include(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'sws' . DIRECTORY_SEPARATOR . 'sws.php');
     $sws = new sws\sws();
 
     try
