@@ -2,7 +2,10 @@
 
     namespace ZiProto\Abstracts;
 
-
+    /**
+     * Class Options
+     * @package ZiProto\Abstracts
+     */
     abstract class Options
     {
         const BIGINT_AS_STR = 0b001;

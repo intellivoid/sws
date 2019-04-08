@@ -9,8 +9,15 @@
     use function sprintf;
     use Throwable;
 
+    /**
+     * Class EncodingFailedException
+     * @package ZiProto\Exception
+     */
     class EncodingFailedException extends RuntimeException
     {
+        /**
+         * @var mixed
+         */
         private $value;
 
         /**
@@ -24,10 +31,19 @@
             parent::__construct($message, 0, $previous);
             $this->value = $value;
         }
+
+        /**
+         * @return mixed
+         */
         public function getValue()
         {
             return $this->value;
         }
+
+        /**
+         * @param $value
+         * @return EncodingFailedException
+         */
         public static function unsupportedType($value) : self
         {
             $message = sprintf('Unsupported type: %s.',

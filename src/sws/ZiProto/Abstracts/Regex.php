@@ -2,6 +2,10 @@
 
     namespace ZiProto\Abstracts;
 
+    /**
+     * Class Regex
+     * @package ZiProto\Abstracts
+     */
     abstract class Regex
     {
         const UTF8_REGEX = '/\A(?:

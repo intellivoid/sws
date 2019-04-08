@@ -2,6 +2,7 @@
 
     namespace ZiProto;
 
+    use ZiProto\Exception\DecodingFailedException;
     use ZiProto\Exception\EncodingFailedException;
     use ZiProto\Exception\InvalidOptionException;
 
@@ -49,6 +50,9 @@
         /**
          * @param string $data
          * @param DecodingOptions|int|null $options
+         *
+         * @throws InvalidOptionException
+         * @throws DecodingFailedException
          *
          * @return mixed
          */

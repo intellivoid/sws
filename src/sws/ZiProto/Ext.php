@@ -1,7 +1,10 @@
 <?php
     namespace ZiProto;
 
-
+    /**
+     * Class Ext
+     * @package ZiProto
+     */
     final class Ext
     {
         /**
