@@ -1,13 +1,15 @@
 <?php
 
     namespace asas\Exceptions;
+    use RuntimeException;
+    use function sprintf;
     use sws\Abstracts\ExceptionCodes;
 
     /**
      * Class DatabaseException
      * @package sws\Exceptions
      */
-    class DatabaseException extends \RuntimeException
+    class DatabaseException extends RuntimeException
     {
         /**
          * @var string
@@ -21,7 +23,7 @@
         public function __construct(string $DatabaseError)
         {
             parent::__construct(
-                \sprintf('There was an internal Database error'),
+                sprintf('There was an internal Database error'),
                 ExceptionCodes::DatabaseException
             );
             $this->DatabaseError = $DatabaseError;

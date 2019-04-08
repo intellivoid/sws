@@ -1,9 +1,15 @@
 <?php
     namespace ZiProto;
 
+    use function gmp_init;
+    use function ord;
+    use function sprintf;
+    use function substr;
+    use function unpack;
     use ZiProto\Exception\InsufficientDataException;
     use ZiProto\Exception\IntegerOverflowException;
     use ZiProto\Exception\DecodingFailedException;
+    use ZiProto\Exception\InvalidOptionException;
     use ZiProto\TypeTransformer\Extension;
 
     class BufferStream
@@ -19,8 +25,7 @@
         /**
          * @param string $buffer
          * @param DecodingOptions|int|null $options
-         *
-         * @throws \ZiProto\Exception\InvalidOptionException
+         * @throws InvalidOptionException
          */
         public function __construct(string $buffer = '', $options = null)
         {
@@ -33,6 +38,7 @@
             $this->isBigIntAsGmp = $options->isBigIntAsGmpMode();
             $this->buffer = $buffer;
         }
+
         public function registerTransformer(Extension $transformer) : self
         {
             $this->transformers[$transformer->getType()] = $transformer;
@@ -67,7 +73,7 @@
                 $this->offset = $offset;
             }
             if ($this->offset) {
-                $this->buffer = isset($this->buffer[$this->offset]) ? \substr($this->buffer, $this->offset) : '';
+                $this->buffer = isset($this->buffer[$this->offset]) ? substr($this->buffer, $this->offset) : '';
                 $this->offset = 0;
             }
             return $data;
@@ -78,7 +84,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             // fixint
             if ($c <= 0x7f) {
@@ -152,14 +158,14 @@
                 ++$this->offset;
                 return null;
             }
-            throw DecodingFailedException::unexpectedCode(\ord($this->buffer[$this->offset++]), 'nil');
+            throw DecodingFailedException::unexpectedCode(ord($this->buffer[$this->offset++]), 'nil');
         }
         public function decodeBool()
         {
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             if (0xc2 === $c) {
                 return false;
@@ -174,7 +180,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             // fixint
             if ($c <= 0x7f) {
@@ -203,7 +209,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             if (0xcb === $c) {
                 return $this->decodeFloat64();
@@ -218,7 +224,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             if ($c >= 0xa0 && $c <= 0xbf) {
                 return ($c & 0x1f) ? $this->decodeStrData($c & 0x1f) : '';
@@ -239,7 +245,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             if (0xc4 === $c) {
                 return $this->decodeStrData($this->decodeUint8());
@@ -266,7 +272,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             if ($c >= 0x90 && $c <= 0x9f) {
                 return $c & 0xf;
@@ -293,7 +299,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             if ($c >= 0x80 && $c <= 0x8f) {
                 return $c & 0xf;
@@ -311,7 +317,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $c = \ord($this->buffer[$this->offset]);
+            $c = ord($this->buffer[$this->offset]);
             ++$this->offset;
             switch ($c) {
                 case 0xd4: return $this->decodeExtData(1);
@@ -330,15 +336,15 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            return \ord($this->buffer[$this->offset++]);
+            return ord($this->buffer[$this->offset++]);
         }
         private function decodeUint16()
         {
             if (!isset($this->buffer[$this->offset + 1])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 2);
             }
-            $hi = \ord($this->buffer[$this->offset]);
-            $lo = \ord($this->buffer[++$this->offset]);
+            $hi = ord($this->buffer[$this->offset]);
+            $lo = ord($this->buffer[++$this->offset]);
             ++$this->offset;
             return $hi << 8 | $lo;
         }
@@ -347,7 +353,7 @@
             if (!isset($this->buffer[$this->offset + 3])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 4);
             }
-            $num = \unpack('N', $this->buffer, $this->offset)[1];
+            $num = unpack('N', $this->buffer, $this->offset)[1];
             $this->offset += 4;
             return $num;
         }
@@ -356,7 +362,7 @@
             if (!isset($this->buffer[$this->offset + 7])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 8);
             }
-            $num = \unpack('J', $this->buffer, $this->offset)[1];
+            $num = unpack('J', $this->buffer, $this->offset)[1];
             $this->offset += 8;
             return $num < 0 ? $this->handleIntOverflow($num) : $num;
         }
@@ -365,7 +371,7 @@
             if (!isset($this->buffer[$this->offset])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 1);
             }
-            $num = \ord($this->buffer[$this->offset]);
+            $num = ord($this->buffer[$this->offset]);
             ++$this->offset;
             return $num > 0x7f ? $num - 0x100 : $num;
         }
@@ -374,8 +380,8 @@
             if (!isset($this->buffer[$this->offset + 1])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 2);
             }
-            $hi = \ord($this->buffer[$this->offset]);
-            $lo = \ord($this->buffer[++$this->offset]);
+            $hi = ord($this->buffer[$this->offset]);
+            $lo = ord($this->buffer[++$this->offset]);
             ++$this->offset;
             return $hi > 0x7f ? $hi << 8 | $lo - 0x10000 : $hi << 8 | $lo;
         }
@@ -384,7 +390,7 @@
             if (!isset($this->buffer[$this->offset + 3])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 4);
             }
-            $num = \unpack('N', $this->buffer, $this->offset)[1];
+            $num = unpack('N', $this->buffer, $this->offset)[1];
             $this->offset += 4;
             return $num > 0x7fffffff ? $num - 0x100000000 : $num;
         }
@@ -393,7 +399,7 @@
             if (!isset($this->buffer[$this->offset + 7])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 8);
             }
-            $num = \unpack('J', $this->buffer, $this->offset)[1];
+            $num = unpack('J', $this->buffer, $this->offset)[1];
             $this->offset += 8;
             return $num;
         }
@@ -402,7 +408,7 @@
             if (!isset($this->buffer[$this->offset + 3])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 4);
             }
-            $num = \unpack('G', $this->buffer, $this->offset)[1];
+            $num = unpack('G', $this->buffer, $this->offset)[1];
             $this->offset += 4;
             return $num;
         }
@@ -411,7 +417,7 @@
             if (!isset($this->buffer[$this->offset + 7])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, 8);
             }
-            $num = \unpack('E', $this->buffer, $this->offset)[1];
+            $num = unpack('E', $this->buffer, $this->offset)[1];
             $this->offset += 8;
             return $num;
         }
@@ -420,7 +426,7 @@
             if (!isset($this->buffer[$this->offset + $length - 1])) {
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, $length);
             }
-            $str = \substr($this->buffer, $this->offset, $length);
+            $str = substr($this->buffer, $this->offset, $length);
             $this->offset += $length;
             return $str;
         }
@@ -446,23 +452,23 @@
                 throw InsufficientDataException::unexpectedLength($this->buffer, $this->offset, $length);
             }
             // int8
-            $num = \ord($this->buffer[$this->offset]);
+            $num = ord($this->buffer[$this->offset]);
             ++$this->offset;
             $type = $num > 0x7f ? $num - 0x100 : $num;
             if (isset($this->transformers[$type])) {
                 return $this->transformers[$type]->decode($this, $length);
             }
-            $data = \substr($this->buffer, $this->offset, $length);
+            $data = substr($this->buffer, $this->offset, $length);
             $this->offset += $length;
             return new Ext($type, $data);
         }
         private function handleIntOverflow($value)
         {
             if ($this->isBigIntAsStr) {
-                return \sprintf('%u', $value);
+                return sprintf('%u', $value);
             }
             if ($this->isBigIntAsGmp) {
-                return \gmp_init(\sprintf('%u', $value));
+                return gmp_init(sprintf('%u', $value));
             }
             throw new IntegerOverflowException($value);
         }

@@ -2,6 +2,7 @@
 
     namespace sws;
     use asas\Exceptions\DatabaseException;
+    use mysqli;
     use sws\Classes\CookieManager;
     use sws\Classes\WebManager;
 
@@ -17,7 +18,7 @@
         private $Configuration;
 
         /**
-         * @var \mysqli
+         * @var mysqli
          */
         private $Database;
 
@@ -58,7 +59,7 @@
 
             include_once(__DIR__ . DIRECTORY_SEPARATOR . 'Objects' . DIRECTORY_SEPARATOR . 'Cookie.php');
 
-            $this->Database = new \mysqli(
+            $this->Database = new mysqli(
                 $this->Configuration['Host'],
                 $this->Configuration['Username'],
                 $this->Configuration['Password'],
@@ -84,9 +85,9 @@
         }
 
         /**
-         * @return \mysqli
+         * @return mysqli
          */
-        public function Database(): \mysqli
+        public function Database(): mysqli
         {
             return $this->Database;
         }

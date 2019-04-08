@@ -21,6 +21,10 @@
             return $self;
         }
 
+        /**
+         * @param int $bitmask
+         * @return DecodingOptions
+         */
         public static function fromBitmask(int $bitmask) : self
         {
             $self = new self();
@@ -44,6 +48,12 @@
             return Options::BIGINT_AS_GMP === $this->bigIntMode;
         }
 
+        /**
+         * @param string $name
+         * @param int $bitmask
+         * @param int $validBitmask
+         * @return int
+         */
         private static function getSingleOption(string $name, int $bitmask, int $validBitmask) : int
         {
             $option = $bitmask & $validBitmask;

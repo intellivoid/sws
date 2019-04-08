@@ -6,6 +6,7 @@
     use asas\Exceptions\InvalidCookieException;
     use asas\Exceptions\InvalidIPException;
     use asas\Exceptions\IPAutoDetectException;
+    use mysqli;
     use sws\Abstracts\DefaultValues;
     use sws\Objects\Cookie;
     use sws\sws;
@@ -19,7 +20,7 @@
     {
 
         /**
-         * @var \mysqli
+         * @var mysqli
          */
         private $Database;
 

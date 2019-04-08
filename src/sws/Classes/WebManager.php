@@ -2,6 +2,7 @@
 
     namespace sws\Classes;
     use asas\Exceptions\InvalidCookieException;
+    use Exception;
     use sws\Abstracts\DefaultValues;
     use sws\Objects\Cookie;
     use sws\sws;
@@ -99,7 +100,7 @@
                 {
                     $CookieObject = $this->CookieManager->getCookie($Name, $_COOKIE[$Name]);
                 }
-                catch(\Exception $exception)
+                catch(Exception $exception)
                 {
                     return(False);
                 }
