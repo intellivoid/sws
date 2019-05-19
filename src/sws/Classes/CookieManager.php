@@ -59,58 +59,7 @@
             {
                 if($ClientIP == DefaultValues::AutoDetect)
                 {
-                    if(isset($_SERVER['HTTP_CLIENT_IP']))
-                    {
-                        $CookieObject->IP = $_SERVER['HTTP_CLIENT_IP'];
-                    }
-                    elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-                    {
-                        $CookieObject->IP = $_SERVER['HTTP_X_FORWARDED_FOR'];
-                    }
-                    elseif(isset($_SERVER['HTTP_X_FORWARDED']))
-                    {
-                        $CookieObject->IP = $_SERVER['HTTP_X_FORWARDED'];
-                    }
-                    elseif(isset($_SERVER['HTTP_FORWARDED_FOR']))
-                    {
-                        $CookieObject->IP = $_SERVER['HTTP_FORWARDED_FOR'];
-                    }
-                    elseif($_SERVER['HTTP_FORWARDED'])
-                    {
-                        $CookieObject->IP = $_SERVER['HTTP_FORWARDED'];
-                    }
-                    elseif($_SERVER['REMOTE_ADDR'])
-                    {
-                        $CookieObject->IP = $_SERVER['REMOTE_ADDR'];
-                    }
-                    elseif(getenv('HTTP_CLIENT_IP') !== False)
-                    {
-                        $CookieObject->IP = getenv('HTTP_CLIENT_IP');
-                    }
-                    elseif(getenv('HTTP_X_FORWARDED_FOR'))
-                    {
-                        $CookieObject->IP = getenv('HTTP_X_FORWARDED_FOR');
-                    }
-                    elseif(getenv('HTTP_X_FORWARDED'))
-                    {
-                        $CookieObject->IP = getenv('HTTP_X_FORWARDED');
-                    }
-                    elseif(getenv('HTTP_FORWARDED_FOR'))
-                    {
-                        $CookieObject->IP = getenv('HTTP_FORWARDED_FOR');
-                    }
-                    elseif(getenv('HTTP_FORWARDED'))
-                    {
-                        $CookieObject->IP = getenv('HTTP_FORWARDED');
-                    }
-                    elseif(getenv('REMOTE_ADDR'))
-                    {
-                        $CookieObject->IP = getenv('REMOTE_ADDR');
-                    }
-                    else
-                    {
-                        throw new IPAutoDetectException();
-                    }
+                    $CookieObject->IP = Utilities::detectClientIp();
                 }
                 else
                 {

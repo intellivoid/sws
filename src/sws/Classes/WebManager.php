@@ -119,60 +119,7 @@
                 {
                     if($ClientIP == DefaultValues::AutoDetect)
                     {
-                        if(isset($_SERVER['HTTP_CLIENT_IP']))
-                        {
-                            $ClientIP = $_SERVER['HTTP_CLIENT_IP'];
-                        }
-                        elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-                        {
-                            $ClientIP = $_SERVER['HTTP_X_FORWARDED_FOR'];
-                        }
-                        elseif(isset($_SERVER['HTTP_X_FORWARDED']))
-                        {
-                            $ClientIP = $_SERVER['HTTP_X_FORWARDED'];
-                        }
-                        elseif(isset($_SERVER['HTTP_FORWARDED_FOR']))
-                        {
-                            $ClientIP = $_SERVER['HTTP_FORWARDED_FOR'];
-                        }
-                        elseif($_SERVER['HTTP_FORWARDED'])
-                        {
-                            $ClientIP = $_SERVER['HTTP_FORWARDED'];
-                        }
-                        elseif($_SERVER['REMOTE_ADDR'])
-                        {
-                            $ClientIP = $_SERVER['REMOTE_ADDR'];
-                        }
-                        elseif(getenv('HTTP_CLIENT_IP') !== False)
-                        {
-                            $ClientIP = getenv('HTTP_CLIENT_IP');
-                        }
-                        elseif(getenv('HTTP_X_FORWARDED_FOR'))
-                        {
-                            $ClientIP = getenv('HTTP_X_FORWARDED_FOR');
-                        }
-                        elseif(getenv('HTTP_X_FORWARDED'))
-                        {
-                            $ClientIP = getenv('HTTP_X_FORWARDED');
-                        }
-                        elseif(getenv('HTTP_FORWARDED_FOR'))
-                        {
-                            $ClientIP = getenv('HTTP_FORWARDED_FOR');
-                        }
-                        elseif(getenv('HTTP_FORWARDED'))
-                        {
-                            $ClientIP = getenv('HTTP_FORWARDED');
-                        }
-                        elseif(getenv('REMOTE_ADDR'))
-                        {
-                            $ClientIP = getenv('REMOTE_ADDR');
-                        }
-                        else
-                        {
-                            return(False);
-                        }
-
-                        if($CookieObject->IP !== $ClientIP)
+                        if($CookieObject->IP !== Utilities::detectClientIp())
                         {
                             return(False);
                         }
