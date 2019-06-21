@@ -83,7 +83,7 @@
                 $this->DatabaseConfiguration['Host'],
                 $this->DatabaseConfiguration['Username'],
                 $this->DatabaseConfiguration['Password'],
-                $this->DatabaseConfiguration['Database'],
+                $this->DatabaseConfiguration['Name'],
                 $this->DatabaseConfiguration['Port']
             );
 
