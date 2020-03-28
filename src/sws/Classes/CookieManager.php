@@ -5,7 +5,7 @@
     use asas\Exceptions\DatabaseException;
     use asas\Exceptions\InvalidCookieException;
     use asas\Exceptions\InvalidIPException;
-    use asas\Exceptions\IPAutoDetectException;
+    use msqg\QueryBuilder;
     use mysqli;
     use sws\Abstracts\DefaultValues;
     use sws\Objects\Cookie;
@@ -48,7 +48,7 @@
             $CookieObject->Name = $Name;
             $CookieObject->Expires = time() + $Expires;
             $CookieObject->IPTied = $IPTied;
-            $CookieObject->Token = Crypto::generateToken($Name);
+            $CookieObject->Token = Crypto::generateToken($Name, time());
 
             // If the IP is tied to the cookie, validate the information regarding the IP Address
             if($IPTied == False)
@@ -90,7 +90,19 @@
             $Cookie_Data = $this->Database->real_escape_string(ZiProto::encode($CookieObject->Data));
 
             // Build the query to save the cookie to the database
-            $Query = "INSERT INTO `cookies` (date_creation, disposed, name, token, expires, ip_tied, client_ip, data) VALUES ($DateCreation, $Cookie_Disposed, '$Cookie_Name', '$Cookie_Token', $Cookie_Expires, $Cookie_IPTied, '$Cookie_IP', '$Cookie_Data')";
+            $Query = QueryBuilder::insert_into(
+                'cookies',
+                array(
+                    'date_creation' => $DateCreation,
+                    'disposed' => $Cookie_Disposed,
+                    'name' => $Cookie_Name,
+                    'token' => $Cookie_Token,
+                    'expires' => $Cookie_Expires,
+                    'ip_tied' => $Cookie_IPTied,
+                    'client_ip' => $Cookie_IP,
+                    'data' => $Cookie_Data
+                )
+            );
 
             $QueryResults = $this->Database->query($Query);
             if($QueryResults)
