@@ -33,10 +33,14 @@
          * @param string $Name
          * @return string
          */
-        public static function generateToken(string $Name): string
+        public static function generateToken(string $Name, int $Timestamp): string
         {
             $Peppered_Name = self::pepper($Name, 100, 1256);
-            $HashedResult = hash('haval192,5', $Peppered_Name);
-            return($HashedResult);
+            $Peppered_Timestamp = self::pepper($Timestamp, 100, 1256);
+            $HashedResult = hash('haval192,5', $Peppered_Name . $Peppered_Timestamp);
+            $HashedResult2b = hash('crc32b', $Name . $Timestamp);
+            $HashedResult3b = self::pepper( $HashedResult . $HashedResult2b, 100, 1256);
+            $HashedResult4b = hash('crc32b', $HashedResult . $HashedResult2b . $HashedResult3b);
+            return($HashedResult . $HashedResult2b . 'sws' . $HashedResult4b);
         }
     }
