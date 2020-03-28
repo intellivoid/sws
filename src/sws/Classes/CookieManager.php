@@ -5,7 +5,6 @@
     use asas\Exceptions\DatabaseException;
     use asas\Exceptions\InvalidCookieException;
     use asas\Exceptions\InvalidIPException;
-    use asas\Exceptions\IPAutoDetectException;
     use msqg\QueryBuilder;
     use mysqli;
     use sws\Abstracts\DefaultValues;
