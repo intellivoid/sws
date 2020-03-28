@@ -48,7 +48,7 @@
             $CookieObject->Name = $Name;
             $CookieObject->Expires = time() + $Expires;
             $CookieObject->IPTied = $IPTied;
-            $CookieObject->Token = Crypto::generateToken($Name);
+            $CookieObject->Token = Crypto::generateToken($Name, time());
 
             // If the IP is tied to the cookie, validate the information regarding the IP Address
             if($IPTied == False)
