@@ -31,6 +31,7 @@
          * Generates a cookie token identifier
          *
          * @param string $Name
+         * @param int $Timestamp
          * @return string
          */
         public static function generateToken(string $Name, int $Timestamp): string
